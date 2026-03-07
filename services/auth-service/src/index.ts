@@ -4,8 +4,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 import express, { Application } from 'express';
 import cors from 'cors';
-import authRoutes from './infrastructure/http/routes/auth.routes';
-import personalRoutes from './infrastructure/http/routes/personal.routes';
+import routes from './infrastructure/http/routes/routes';
 import { errorHandler } from './infrastructure/http/middlewares/error.middleware';
 
 const app: Application = express();
@@ -22,8 +21,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', service: 'auth-service', timestamp: new Date().toISOString() });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/personal', personalRoutes);
+app.use('/api', routes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
