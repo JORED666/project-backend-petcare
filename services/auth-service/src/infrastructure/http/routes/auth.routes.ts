@@ -1,12 +1,16 @@
 import { Router } from 'express';
-import { AuthController } from '../controllers/auth.controller';
+import { LoginController } from '../controllers/auth/LoginController';
+import { RegisterController } from '../controllers/auth/RegisterController';
+import { MeController } from '../controllers/auth/MeController';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
-const authController = new AuthController();
+const loginController = new LoginController();
+const registerController = new RegisterController();
+const meController = new MeController();
 
-router.post('/login', authController.login.bind(authController));
-router.get('/me', authMiddleware, authController.me.bind(authController));
-router.post('/register', authController.register.bind(authController)); 
+router.post('/login', loginController.handle.bind(loginController));
+router.post('/register', registerController.handle.bind(registerController));
+router.get('/me', authMiddleware, meController.handle.bind(meController));
 
 export default router;
