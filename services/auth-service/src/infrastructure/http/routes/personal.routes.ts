@@ -1,20 +1,18 @@
 import { Router } from 'express';
-import { PersonalController } from '../controllers/personal.controller';
+import { RegistrarPersonalController } from '../controllers/personal/RegistrarPersonalController';
+import { ListarPersonalController } from '../controllers/personal/ListarPersonalController';
+import { CambiarPasswordController } from '../controllers/personal/CambiarPasswordController';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
-const controller = new PersonalController();
+const registrarController = new RegistrarPersonalController();
+const listarController = new ListarPersonalController();
+const cambiarPasswordController = new CambiarPasswordController();
 
-// Todas las rutas requieren autenticación
 router.use(authMiddleware);
 
-// Registrar personal (solo admin)
-router.post('/registrar', controller.registrar.bind(controller));
-
-// Listar personal (solo admin)
-router.get('/listar', controller.listar.bind(controller));
-
-// Cambiar contraseña (cualquier personal)
-router.put('/cambiar-password', controller.cambiarPassword.bind(controller));
+router.post('/registrar', registrarController.handle.bind(registrarController));
+router.get('/listar', listarController.handle.bind(listarController));
+router.put('/cambiar-password', cambiarPasswordController.handle.bind(cambiarPasswordController));
 
 export default router;
