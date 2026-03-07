@@ -1,43 +1,37 @@
-import { Cliente } from '../drizzle/clientes.schema';
-import { Personal } from '../drizzle/personal.schema';
-import { Client } from '../../../domain/entities/Client';
-import { Employee } from '../../../domain/entities/Employee';
+import { UserRecord } from '../drizzle/users.schema';
+import { VeterinarioRecord } from '../drizzle/veterinarios.schema';
+import { User } from '../../../domain/entities/User';
+import { Veterinario } from '../../../domain/entities/Veterinario';
 import { Role } from '../../../domain/entities/Role';
 
 const resolveRole = (idRol: number): Role => {
   switch (idRol) {
     case 1: return Role.ADMIN;
     case 2: return Role.VETERINARIO;
-    default: return Role.RECEPCIONISTA;
+    default: return Role.USER;
   }
 };
 
 export class UserMapper {
-  static toClientDomain(row: Cliente): Client {
+  static toUserDomain(row: UserRecord): User {
     return {
-      id: row.id_cliente,
-      id_cliente: row.id_cliente,
+      id: row.id_user,
       nombre: row.nombre,
       apellido: row.apellido,
       email: row.email,
-      password: row.password_hash ?? '',
-      rol: Role.CLIENTE,
-      telefono: row.telefono,
-      direccion: row.direccion,
-      activo: row.activo ?? true
+      password: row.password,
+      rol: resolveRole(row.id_rol)
     };
   }
 
-  static toEmployeeDomain(row: Personal): Employee {
+  static toVeterinarioDomain(row: VeterinarioRecord): Veterinario {
     return {
-      id: row.id_personal,
-      id_personal: row.id_personal,
-      id_rol: row.id_rol,
+      id: row.id_veterinario,
       nombre: row.nombre,
       apellido: row.apellido,
       email: row.email,
-      password: row.password_hash ?? '',
-      rol: resolveRole(row.id_rol),
+      password: row.password,
+      rol: Role.VETERINARIO,
       telefono: row.telefono,
       cedula_profesional: row.cedula_profesional,
       especialidad: row.especialidad,
