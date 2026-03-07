@@ -16,31 +16,28 @@ export class RegisterUseCase {
 
     const password = await hashPassword(dto.password);
 
-    const nuevoCliente = await this.userRepository.create({
+    const nuevoUser = await this.userRepository.create({
       nombre: dto.nombre,
       apellido: dto.apellido,
       email: dto.email,
       password,
-      rol: Role.CLIENTE,
-      telefono: dto.telefono || null,
-      activo: true,
-      direccion: null
+      rol: Role.USER
     });
 
     const token = generateToken({
-      id: nuevoCliente.id,
-      email: nuevoCliente.email,
-      rol: nuevoCliente.rol
+      id: nuevoUser.id,
+      email: nuevoUser.email,
+      rol: nuevoUser.rol
     });
 
     return {
       token,
       user: {
-        id: nuevoCliente.id,
-        nombre: nuevoCliente.nombre,
-        apellido: nuevoCliente.apellido,
-        email: nuevoCliente.email,
-        rol: nuevoCliente.rol
+        id: nuevoUser.id,
+        nombre: nuevoUser.nombre,
+        apellido: nuevoUser.apellido,
+        email: nuevoUser.email,
+        rol: nuevoUser.rol
       }
     };
   }

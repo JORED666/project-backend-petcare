@@ -1,57 +1,69 @@
 import { eq } from 'drizzle-orm';
 import { db } from '../database';
-import { clientes } from '../drizzle/clientes.schema';
-import { personal } from '../drizzle/personal.schema';
+import { users } from '../drizzle/users.schema';
+import { veterinarios } from '../drizzle/veterinarios.schema';
 import { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { Client } from '../../../domain/entities/Client';
-import { Employee } from '../../../domain/entities/Employee';
+import { User } from '../../../domain/entities/User';
+import { Veterinario } from '../../../domain/entities/Veterinario';
 import { UserMapper } from '../mappers/UserMapper';
-import { Role } from '../../../domain/entities/Role';
 
 export class UserRepository implements IUserRepository {
-  async findByEmail(email: string): Promise<Employee | Client | null> {
-    const [empleado] = await db.select().from(personal).where(eq(personal.email, email)).limit(1);
-    if (empleado) return UserMapper.toEmployeeDomain(empleado);
+  async findByEmail(email: string): Promise<User | Veterinario | null> {
+    const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (user) return UserMapper.toUserDomain(user);
 
-    const [cliente] = await db.select().from(clientes).where(eq(clientes.email, email)).limit(1);
-    if (cliente) return UserMapper.toClientDomain(cliente);
-
-    return null;
-  }
-
-  async findById(id: number): Promise<Employee | Client | null> {
-    const [empleado] = await db.select().from(personal).where(eq(personal.id_personal, id)).limit(1);
-    if (empleado) return UserMapper.toEmployeeDomain(empleado);
-
-    const [cliente] = await db.select().from(clientes).where(eq(clientes.id_cliente, id)).limit(1);
-    if (cliente) return UserMapper.toClientDomain(cliente);
+    const [vet] = await db.select().from(veterinarios).where(eq(veterinarios.email, email)).limit(1);
+    if (vet) return UserMapper.toVeterinarioDomain(vet);
 
     return null;
   }
 
-  async create(user: Omit<Client, 'id' | 'id_cliente' | 'created_at'>): Promise<Client> {
-    const [nuevo] = await db.insert(clientes).values({
+  async findById(id: number): Promise<User | Veterinario | null> {
+    const [user] = await db.select().from(users).where(eq(users.id_user, id)).limit(1);
+    if (user) return UserMapper.toUserDomain(user);
+
+    const [vet] = await db.select().from(veterinarios).where(eq(veterinarios.id_veterinario, id)).limit(1);
+    if (vet) return UserMapper.toVeterinarioDomain(vet);
+
+    return null;
+  }
+
+  async create(user: Omit<User, 'id'>): Promise<User> {
+    const [nuevo] = await db.insert(users).values({
+      id_rol: 3,
       nombre: user.nombre,
       apellido: user.apellido,
       email: user.email,
-      telefono: user.telefono ?? '',
-      direccion: user.direccion,
-      activo: user.activo
+      password: user.password,
+      activo: true
     }).returning();
 
-    return UserMapper.toClientDomain(nuevo);
+    return UserMapper.toUserDomain(nuevo);
   }
 
-  async updatePassword(id: number, hash: string): Promise<void> {
-    await db.update(personal).set({ password_hash: hash, password_temporal: false })
-      .where(eq(personal.id_personal, id));
+  async createVeterinario(vet: Omit<Veterinario, 'id'>): Promise<Veterinario> {
+    const [nuevo] = await db.insert(veterinarios).values({
+      id_rol: 2,
+      nombre: vet.nombre,
+      apellido: vet.apellido,
+      email: vet.email,
+      password: vet.password,
+      telefono: vet.telefono,
+      cedula_profesional: vet.cedula_profesional,
+      especialidad: vet.especialidad,
+      activo: true
+    }).returning();
 
-    await db.update(clientes).set({ password_hash: hash, password_temporal: false })
-      .where(eq(clientes.id_cliente, id));
+    return UserMapper.toVeterinarioDomain(nuevo);
+  }
+
+  async updatePassword(id: number, password: string): Promise<void> {
+    await db.update(users).set({ password }).where(eq(users.id_user, id));
+    await db.update(veterinarios).set({ password }).where(eq(veterinarios.id_veterinario, id));
   }
 
   async delete(id: number): Promise<void> {
-    await db.update(personal).set({ activo: false }).where(eq(personal.id_personal, id));
-    await db.update(clientes).set({ activo: false }).where(eq(clientes.id_cliente, id));
+    await db.update(users).set({ activo: false }).where(eq(users.id_user, id));
+    await db.update(veterinarios).set({ activo: false }).where(eq(veterinarios.id_veterinario, id));
   }
 }
