@@ -1,26 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../../utils/jwt.util';
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
+export interface AuthRequest extends Request {
+  userId?: number;
+  userEmail?: string;
+  userRol?: string;
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ success: false, error: 'Token no proporcionado' });
+  }
+
+  const token = authHeader.split(' ')[1];
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ success: false, error: 'No token provided' });
-    }
-
-    const token = authHeader.substring(7);
-    req.user = verifyToken(token);
+    const payload = verifyToken(token) as any;
+    req.userId = payload.id;
+    req.userEmail = payload.email;
+    req.userRol = payload.rol;
     next();
-  } catch (error) {
-    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  } catch {
+    return res.status(401).json({ success: false, error: 'Token inválido o expirado' });
   }
 }
