@@ -48,6 +48,7 @@ services:
       - CITAS_SERVICE_URL=http://citas-service:3004
       - AGENDA_SERVICE_URL=http://agenda-service:3005
       - HISTORIAL_SERVICE_URL=http://historial-service:3006
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3007
       - JWT_SECRET=${JWT_SECRET}
       - CORS_ORIGIN=${CORS_ORIGIN}
     depends_on:
@@ -57,6 +58,7 @@ services:
       - citas-service
       - agenda-service
       - historial-service
+      - notification-service
     networks:
       - petcare-network
     restart: unless-stopped
@@ -75,6 +77,13 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - CORS_ORIGIN=http://gateway:3000
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - RESET_PASSWORD_EXPIRES_IN=${RESET_PASSWORD_EXPIRES_IN}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
@@ -170,6 +179,28 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - CORS_ORIGIN=http://gateway:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - petcare-network
+    restart: unless-stopped
+
+  notification-service:
+    container_name: petcare-notification-service
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "3007:3007"
+    environment:
+      - PORT=3007
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - GMAIL_USER=${GMAIL_USER}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - CORS_ORIGIN=http://gateway:3000
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       postgres:
         condition: service_healthy

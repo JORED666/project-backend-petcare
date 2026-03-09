@@ -9,6 +9,7 @@ import clientsRoutes from './infrastructure/http/routes/clients.routes';
 import petsRoutes from './infrastructure/http/routes/pets.routes';
 import citasRoutes from './infrastructure/http/routes/citas.routes';
 import agendaRoutes from './infrastructure/http/routes/agenda.routes';
+import notificationsRoutes from './infrastructure/http/routes/notifications.routes';
 import historialRoutes from './infrastructure/http/routes/historial.routes';
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/pets', petsRoutes);
 app.use('/api/citas', citasRoutes);
 app.use('/api/agenda', agendaRoutes);
 app.use('/api/historial', historialRoutes);
+app.use('/api/notifications', notificationsRoutes);
 
 app.listen(PORT, () => {
   console.log(`íº€ Gateway running on port ${PORT}`);
