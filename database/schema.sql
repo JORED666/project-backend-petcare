@@ -113,3 +113,12 @@ CREATE TABLE historial_mascotas (
   tratamiento TEXT,
   observaciones TEXT
 );
+
+CREATE TABLE IF NOT EXISTS reset_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  token VARCHAR(255) NOT NULL UNIQUE,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
